@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "LokSuraksha",
+    "slug": "loksuraksha",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#f8fafc"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.citizensafety.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#f8fafc"
+      },
+      "package": "com.citizensafety.app",
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "CAMERA", "READ_MEDIA_IMAGES"]
+    },
+    "web": {
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app needs access to your photos to attach images to reports."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "The app needs your location to tag reports with GPS coordinates.",
+          "locationWhenInUsePermission": "The app needs your location to tag reports with GPS coordinates."
+        }
+      ]
+    ],
+    "extra": {
+      "apiBaseUrl": "http://192.168.14.55:3001"
+    }
+  }
+}
+

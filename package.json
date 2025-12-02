@@ -1,0 +1,32 @@
+{
+  "name": "citizen-safety-ecosystem",
+  "version": "1.0.0",
+  "description": "Citizen Safety Ecosystem - Web, Mobile, and Backend mono-repo",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "web",
+    "mobile",
+    "shared"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:web": "npm run dev --workspace=web",
+    "dev:mobile": "npm run start --workspace=mobile",
+    "dev:all": "npm run dev:backend & npm run dev:web & npm run dev:mobile",
+    "build:backend": "npm run build --workspace=backend",
+    "build:web": "npm run build --workspace=web",
+    "test": "npm run test --workspace=backend",
+    "install:all": "npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "dependencies": {
+    "react-native-worklets": "^0.6.1"
+  }
+}
