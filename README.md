@@ -424,5 +424,5 @@ MIT License - see LICENSE file
 
 ---
 
-**Built with ❤️ for citizen safety and public service**
+***Built with ❤️ for citizen safety and public service***
 
