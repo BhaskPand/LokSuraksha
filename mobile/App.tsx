@@ -26,6 +26,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import EditProfileScreen from './screens/EditProfileScreen';
 import ChangePasswordScreen from './screens/ChangePasswordScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import MenuScreen from './screens/MenuScreen';
 import { Issue } from '@citizen-safety/shared';
 
 // Auth Stack
@@ -57,6 +58,7 @@ export type TabParamList = {
   SOS: undefined;
   Contact: undefined;
   WomenSafety: undefined;
+  Menu: undefined;
 };
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -68,24 +70,31 @@ function TabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#0d9488', // Muted teal
-        tabBarInactiveTintColor: '#64748b',
+        tabBarActiveTintColor: '#8B5CF6', // Pastel purple
+        tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
-          backgroundColor: '#ffffff',
-          borderTopWidth: 1,
-          borderTopColor: '#cbd5e1',
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 60,
+          backgroundColor: '#FFFFFF',
+          borderTopWidth: 0,
+          paddingBottom: 12,
+          paddingTop: 12,
+          height: 72,
+          borderRadius: 28,
+          marginHorizontal: 16,
+          marginBottom: 16,
+          position: 'absolute',
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 4,
-          elevation: 5,
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+          elevation: 8,
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: '600',
+          fontWeight: '700',
+          marginTop: 4,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
         },
       }}
     >
@@ -124,6 +133,13 @@ function TabNavigator() {
         options={{
           tabBarLabel: 'Women',
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>👩</Text>,
+        }}
+      />
+      <Tab.Screen
+        name="Menu"
+        component={MenuScreen}
+        options={{
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>☰</Text>,
         }}
       />
     </Tab.Navigator>

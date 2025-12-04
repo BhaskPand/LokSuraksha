@@ -27,29 +27,56 @@ export default function ProfileScreen() {
     await logout();
   };
 
+  // Mock stats - in production, fetch from API
+  const stats = {
+    reportsSubmitted: 12,
+    issuesResolved: 8,
+    avgResponseTime: '2.5h',
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Header with Avatar */}
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
-              <MaterialCommunityIcons name="account" size={60} color="#0d9488" />
+              <MaterialCommunityIcons name="account" size={64} color="#8B5CF6" />
             </View>
           </View>
           <Text style={styles.name}>{user?.name || 'User'}</Text>
-          <Text style={styles.email}>{user?.email || ''}</Text>
-          {user?.phone && <Text style={styles.phone}>{user.phone}</Text>}
+          <Text style={styles.location}>
+            {user?.email || ''}
+            {user?.phone && ` • ${user.phone}`}
+          </Text>
         </View>
 
+        {/* Stats Cards */}
+        <View style={styles.statsContainer}>
+          <View style={[styles.statCard, { backgroundColor: '#E9D5FF' }]}>
+            <Text style={styles.statValue}>{stats.reportsSubmitted}</Text>
+            <Text style={styles.statLabel}>Reports</Text>
+          </View>
+          <View style={[styles.statCard, { backgroundColor: '#FDE68A' }]}>
+            <Text style={styles.statValue}>{stats.issuesResolved}</Text>
+            <Text style={styles.statLabel}>Resolved</Text>
+          </View>
+          <View style={[styles.statCard, { backgroundColor: '#FECACA' }]}>
+            <Text style={styles.statValue}>{stats.avgResponseTime}</Text>
+            <Text style={styles.statLabel}>Avg Response</Text>
+          </View>
+        </View>
+
+        <Text style={styles.sectionTitle}>Account</Text>
         <View style={styles.section}>
           <TouchableOpacity 
             style={styles.menuItem}
             onPress={() => (navigation as any).navigate('EditProfile')}
             activeOpacity={0.7}
           >
-            <MaterialCommunityIcons name="account-edit" size={24} color="#475569" />
+            <MaterialCommunityIcons name="account-edit" size={24} color="#8B5CF6" />
             <Text style={styles.menuText}>Edit Profile</Text>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#cbd5e1" />
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#D1D5DB" />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -57,30 +84,31 @@ export default function ProfileScreen() {
             onPress={() => (navigation as any).navigate('ChangePassword')}
             activeOpacity={0.7}
           >
-            <MaterialCommunityIcons name="lock" size={24} color="#475569" />
+            <MaterialCommunityIcons name="lock" size={24} color="#8B5CF6" />
             <Text style={styles.menuText}>Change Password</Text>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#cbd5e1" />
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#D1D5DB" />
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.menuItem}
             onPress={() => navigation.navigate('ViewIssues' as any)}
           >
-            <MaterialCommunityIcons name="file-document-multiple" size={24} color="#475569" />
+            <MaterialCommunityIcons name="file-document-multiple" size={24} color="#8B5CF6" />
             <Text style={styles.menuText}>My Reports</Text>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#cbd5e1" />
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#D1D5DB" />
           </TouchableOpacity>
         </View>
 
+        <Text style={styles.sectionTitle}>Support</Text>
         <View style={styles.section}>
           <TouchableOpacity 
             style={styles.menuItem}
             onPress={() => navigation.navigate('Settings' as any)}
             activeOpacity={0.7}
           >
-            <MaterialCommunityIcons name="shield-account" size={24} color="#475569" />
+            <MaterialCommunityIcons name="shield-account" size={24} color="#8B5CF6" />
             <Text style={styles.menuText}>Privacy & Security</Text>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#cbd5e1" />
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#D1D5DB" />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -91,9 +119,9 @@ export default function ProfileScreen() {
             )}
             activeOpacity={0.7}
           >
-            <MaterialCommunityIcons name="help-circle" size={24} color="#475569" />
+            <MaterialCommunityIcons name="help-circle" size={24} color="#8B5CF6" />
             <Text style={styles.menuText}>Help & Support</Text>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#cbd5e1" />
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#D1D5DB" />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -104,9 +132,9 @@ export default function ProfileScreen() {
             )}
             activeOpacity={0.7}
           >
-            <MaterialCommunityIcons name="information" size={24} color="#475569" />
+            <MaterialCommunityIcons name="information" size={24} color="#8B5CF6" />
             <Text style={styles.menuText}>About</Text>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#cbd5e1" />
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#D1D5DB" />
           </TouchableOpacity>
         </View>
 
@@ -122,110 +150,129 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#F5F3FF', // Soft light lavender background
   },
   content: {
     padding: 20,
+    paddingBottom: 32,
   },
   header: {
     alignItems: 'center',
     paddingVertical: 32,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
     marginBottom: 24,
-    backgroundColor: '#ffffff',
-    marginHorizontal: -20,
-    marginTop: -20,
-    paddingTop: 40,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
   },
   avatarContainer: {
     marginBottom: 16,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#f0fdfa',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#0d9488',
-    shadowColor: '#0d9488',
+    borderWidth: 4,
+    borderColor: '#E9D5FF',
+    shadowColor: '#8B5CF6',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
   },
   name: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
-    color: '#1e293b',
+    color: '#1F2937',
+    marginBottom: 8,
+  },
+  location: {
+    fontSize: 15,
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 32,
+    gap: 12,
+  },
+  statCard: {
+    flex: 1,
+    borderRadius: 24,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  statValue: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1F2937',
     marginBottom: 4,
   },
-  email: {
-    fontSize: 16,
-    color: '#64748b',
-    marginBottom: 4,
+  statLabel: {
+    fontSize: 13,
+    color: '#6B7280',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  phone: {
-    fontSize: 14,
-    color: '#64748b',
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 12,
+    marginTop: 8,
   },
   section: {
-    backgroundColor: '#ffffff',
-    borderRadius: 16,
-    marginBottom: 16,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    marginBottom: 24,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 18,
+    padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#F3F4F6',
   },
   menuText: {
     flex: 1,
     fontSize: 16,
-    color: '#1e293b',
-    marginLeft: 12,
-    fontWeight: '500',
+    color: '#1F2937',
+    marginLeft: 16,
+    fontWeight: '600',
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ffffff',
-    padding: 18,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: '#fecaca',
+    backgroundColor: '#FFFFFF',
+    padding: 20,
+    borderRadius: 28,
     marginTop: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+    borderWidth: 2,
+    borderColor: '#FECACA',
   },
   logoutText: {
     fontSize: 16,
-    color: '#dc2626',
-    fontWeight: '600',
-    marginLeft: 8,
+    color: '#DC2626',
+    fontWeight: '700',
+    marginLeft: 12,
   },
 });
 

@@ -9,7 +9,9 @@ import {
   Image,
   Alert,
   Linking,
+  Dimensions,
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../App';
@@ -17,6 +19,8 @@ import { Issue } from '@citizen-safety/shared';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
+
+const { width } = Dimensions.get('window');
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList, 'IssueDetail'>;
 type RouteProp = RouteProp<MainStackParamList, 'IssueDetail'>;
@@ -109,18 +113,43 @@ export default function IssueDetailScreen() {
 
   const isOwner = user && issue.user_id === user.id;
 
+  const primaryImage = issue.images && issue.images.length > 0 ? issue.images[0] : null;
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <View style={styles.headerLeft}>
-            <Text style={styles.title}>{issue.title}</Text>
-            <Text style={styles.category}>{issue.category}</Text>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Hero Image Section */}
+      <View style={styles.heroSection}>
+        {primaryImage ? (
+          <Image
+            source={{ uri: primaryImage }}
+            style={styles.heroImage}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.heroPlaceholder}>
+            <MaterialCommunityIcons name="image-off" size={64} color="#D1D5DB" />
           </View>
+        )}
+        <View style={styles.heroOverlay}>
+          <View style={styles.heroBadge}>
+            <Text style={styles.heroBadgeText}>{issue.category}</Text>
+          </View>
+          {isOwner && (
+            <TouchableOpacity style={styles.editButtonFloating} onPress={handleEdit}>
+              <MaterialCommunityIcons name="pencil" size={20} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      {/* Content Card */}
+      <View style={styles.contentCard}>
+        <View style={styles.cardHeader}>
+          <Text style={styles.title}>{issue.title}</Text>
           <View
             style={[
               styles.statusBadge,
-              { backgroundColor: statusColors[issue.status] || '#64748b' },
+              { backgroundColor: statusColors[issue.status] || '#9CA3AF' },
             ]}
           >
             <Text style={styles.statusText}>
@@ -128,75 +157,71 @@ export default function IssueDetailScreen() {
             </Text>
           </View>
         </View>
-        {isOwner && (
-          <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
-            <Text style={styles.editButtonText}>✏️ Edit</Text>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Description</Text>
+          <Text style={styles.sectionContent}>{issue.description}</Text>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Location</Text>
+          <Text style={styles.sectionContent}>
+            {issue.location_lat.toFixed(6)}, {issue.location_lng.toFixed(6)}
+          </Text>
+          <TouchableOpacity style={styles.mapButton} onPress={openMap}>
+            <MaterialCommunityIcons name="map-marker" size={20} color="#FFFFFF" />
+            <Text style={styles.mapButtonText}>Open in Maps</Text>
           </TouchableOpacity>
+        </View>
+
+        {issue.images && issue.images.length > 1 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>More Images ({issue.images.length - 1})</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageContainer}>
+              {issue.images.slice(1).map((image, index) => (
+                <Image
+                  key={index + 1}
+                  source={{ uri: image }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+        {(issue.contact_name || issue.contact_phone) && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Contact Information</Text>
+            {issue.contact_name && (
+              <Text style={styles.sectionContent}>Name: {issue.contact_name}</Text>
+            )}
+            {issue.contact_phone && (
+              <Text style={styles.sectionContent}>Phone: {issue.contact_phone}</Text>
+            )}
+          </View>
+        )}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Submitted</Text>
+          <Text style={styles.sectionContent}>
+            {new Date(issue.created_at).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </Text>
+        </View>
+
+        {issue.notes && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Admin Notes</Text>
+            <Text style={styles.sectionContent}>{issue.notes}</Text>
+          </View>
         )}
       </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Description</Text>
-        <Text style={styles.sectionContent}>{issue.description}</Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Location</Text>
-        <Text style={styles.sectionContent}>
-          {issue.location_lat.toFixed(6)}, {issue.location_lng.toFixed(6)}
-        </Text>
-        <TouchableOpacity style={styles.mapButton} onPress={openMap}>
-          <Text style={styles.mapButtonText}>📍 Open in Maps</Text>
-        </TouchableOpacity>
-      </View>
-
-      {issue.images && issue.images.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Images ({issue.images.length})</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageContainer}>
-            {issue.images.map((image, index) => (
-              <Image
-                key={index}
-                source={{ uri: image }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-            ))}
-          </ScrollView>
-        </View>
-      )}
-
-      {(issue.contact_name || issue.contact_phone) && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Contact Information</Text>
-          {issue.contact_name && (
-            <Text style={styles.sectionContent}>Name: {issue.contact_name}</Text>
-          )}
-          {issue.contact_phone && (
-            <Text style={styles.sectionContent}>Phone: {issue.contact_phone}</Text>
-          )}
-        </View>
-      )}
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Submitted</Text>
-        <Text style={styles.sectionContent}>
-          {new Date(issue.created_at).toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </Text>
-      </View>
-
-      {issue.notes && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Admin Notes</Text>
-          <Text style={styles.sectionContent}>{issue.notes}</Text>
-        </View>
-      )}
     </ScrollView>
   );
 }
@@ -204,99 +229,136 @@ export default function IssueDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#F5F3FF', // Soft light lavender background
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#F5F3FF',
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#64748b',
+    color: '#6B7280',
+    fontWeight: '500',
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#F5F3FF',
     padding: 24,
   },
   errorText: {
     fontSize: 18,
-    color: '#64748b',
+    color: '#6B7280',
     marginBottom: 24,
+    fontWeight: '600',
   },
-  header: {
-    backgroundColor: '#ffffff',
+  heroSection: {
+    width: width,
+    height: 300,
+    position: 'relative',
+  },
+  heroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  heroPlaceholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#E9D5FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heroOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'space-between',
     padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#cbd5e1',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
   },
-  headerTop: {
+  heroBadge: {
+    backgroundColor: '#8B5CF6',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  heroBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  editButtonFloating: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#FFFFFF',
+  },
+  contentCard: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    marginTop: -20,
+    paddingTop: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  headerLeft: {
-    flex: 1,
-    marginRight: 12,
+    marginBottom: 24,
   },
   title: {
-    fontSize: 24,
+    flex: 1,
+    fontSize: 28,
     fontWeight: '700',
-    color: '#1e293b',
-    marginBottom: 6,
-  },
-  category: {
-    fontSize: 14,
-    color: '#0d9488',
-    fontWeight: '500',
+    color: '#1F2937',
+    marginRight: 12,
+    lineHeight: 36,
   },
   statusBadge: {
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 16,
+    borderRadius: 20,
   },
   statusText: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  editButton: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: '#0ea5a4',
-    borderRadius: 8,
-    marginTop: 8,
-  },
-  editButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   section: {
-    backgroundColor: '#ffffff',
-    padding: 20,
-    marginTop: 12,
-    borderTopWidth: 1,
+    marginBottom: 24,
+    paddingBottom: 24,
     borderBottomWidth: 1,
-    borderColor: '#cbd5e1',
+    borderBottomColor: '#F3F4F6',
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1e293b',
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1F2937',
     marginBottom: 12,
   },
   sectionContent: {
-    fontSize: 15,
-    color: '#475569',
-    lineHeight: 22,
+    fontSize: 16,
+    color: '#4B5563',
+    lineHeight: 24,
   },
   imageContainer: {
     marginTop: 12,
@@ -304,32 +366,41 @@ const styles = StyleSheet.create({
   image: {
     width: 200,
     height: 200,
-    borderRadius: 12,
+    borderRadius: 20,
     marginRight: 12,
   },
   mapButton: {
-    marginTop: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#0ea5a4',
-    borderRadius: 8,
+    marginTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    backgroundColor: '#8B5CF6',
+    borderRadius: 24,
     alignSelf: 'flex-start',
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   mapButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
+    marginLeft: 8,
   },
   button: {
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 24,
-    backgroundColor: '#0ea5a4',
-    borderRadius: 8,
+    backgroundColor: '#8B5CF6',
+    borderRadius: 24,
   },
   buttonText: {
-    color: '#fff',
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });
 

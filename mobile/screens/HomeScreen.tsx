@@ -1,26 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, SafeAreaView, Dimensions, Linking } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, SafeAreaView, Dimensions, Linking, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
-import HeaderBar from '../components/HeaderBar';
 import IconGridButton from '../components/IconGridButton';
 import FooterBanner from '../components/FooterBanner';
 
 const { width } = Dimensions.get('window');
-const GRID_PADDING = 16;
-const ITEM_WIDTH = (width - GRID_PADDING * 4) / 3; // 3 columns with padding
-
-// Responsive adjustments
-const getResponsiveItemWidth = () => {
-  if (width < 375) {
-    // Small devices
-    return (width - 12 * 4) / 3;
-  } else if (width >= 768) {
-    // Tablets - show more columns
-    return (width - 20 * 6) / 4;
-  }
-  return ITEM_WIDTH;
-};
+const CARD_PADDING = 20;
+const CARD_SPACING = 16;
 
 /**
  * HomeScreen - Main screen with 3x3 grid of action buttons
@@ -124,27 +112,80 @@ export default function HomeScreen() {
   };
 
 
+  const getCurrentDate = () => {
+    const today = new Date();
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${days[today.getDay()]} ${today.getDate()} ${months[today.getMonth()]}`;
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <HeaderBar title="LokSuraksha" />
-      
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        {/* Header with greeting */}
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.greeting}>{getGreeting()},</Text>
+              <Text style={styles.userName}>{user?.name?.split(' ')[0] || 'User'}</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.profileButton}
+              onPress={() => (navigation as any).navigate('Profile')}
+            >
+              <MaterialCommunityIcons name="account-circle" size={40} color="#8B5CF6" />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.date}>Today {getCurrentDate()}</Text>
+        </View>
+
+        {/* Hero Section Card - Daily Challenge style */}
+        <View style={styles.heroCard}>
+          <View style={styles.heroContent}>
+            <View style={styles.heroText}>
+              <Text style={styles.heroTitle}>Stay Safe Today</Text>
+              <Text style={styles.heroSubtitle}>Report issues and get help quickly</Text>
+            </View>
+            <View style={styles.heroIllustration}>
+              <MaterialCommunityIcons name="shield-check" size={48} color="#F59E0B" />
+            </View>
+          </View>
+        </View>
+
+        {/* Section Title */}
+        <Text style={styles.sectionTitle}>Quick Actions</Text>
+
+        {/* Grid of action cards */}
         <View style={styles.gridContainer}>
           {gridItems.map((item, index) => {
             const row = Math.floor(index / 3);
             const col = index % 3;
-            const isCenter = row === 1 && col === 1; // Middle center position
+            const isCenter = row === 1 && col === 1; // Middle center position (SOS)
+            
+            // Assign pastel colors based on position
+            const cardColors = [
+              '#E9D5FF', // Pastel purple
+              '#FDE68A', // Pastel yellow
+              '#FECACA', // Pastel coral
+            ];
+            const cardColor = cardColors[index % 3];
             
             return (
               <View
                 key={item.key}
                 style={[
                   styles.gridItem,
-                  { width: getResponsiveItemWidth() },
                   isCenter && styles.centerItem,
                 ]}
               >
@@ -169,15 +210,99 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#F5F3FF', // Soft light lavender background
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: GRID_PADDING,
+    padding: CARD_PADDING,
     paddingBottom: 24,
+  },
+  header: {
+    marginBottom: 24,
     paddingTop: 8,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  greeting: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 4,
+  },
+  userName: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#8B5CF6', // Pastel purple accent
+  },
+  date: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  profileButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  heroCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 28,
+    padding: 24,
+    marginBottom: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  heroContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  heroText: {
+    flex: 1,
+    marginRight: 16,
+  },
+  heroTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 8,
+  },
+  heroSubtitle: {
+    fontSize: 15,
+    color: '#6B7280',
+    lineHeight: 22,
+  },
+  heroIllustration: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FEF3C7', // Pastel yellow background
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 20,
+    marginTop: 8,
   },
   gridContainer: {
     flexDirection: 'row',
@@ -185,10 +310,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   gridItem: {
-    marginBottom: 20,
+    width: (width - CARD_PADDING * 2 - CARD_SPACING * 2) / 3,
+    marginBottom: CARD_SPACING,
     alignItems: 'center',
   },
   centerItem: {
-    // Center item (SOS) can have special styling if needed
+    // Center item (SOS) styling handled in IconGridButton
   },
 });
