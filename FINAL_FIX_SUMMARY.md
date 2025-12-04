@@ -46,3 +46,6 @@
 
 The app should now start without errors! The babel config correctly resolves the reanimated plugin, and placeholder icons are in place.
 
+
+
+

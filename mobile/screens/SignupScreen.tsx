@@ -40,8 +40,17 @@ export default function SignupScreen({ navigation }: any) {
 
     setLoading(true);
     try {
-      await signup(email.trim(), password, name.trim(), phone.trim() || undefined);
-      // Navigation will be handled by App.tsx based on auth state
+      const result = await signup(email.trim(), password, name.trim(), phone.trim() || undefined);
+      
+      if (result.requiresVerification) {
+        // Navigate to email verification first
+        navigation.navigate('EmailVerification', {
+          email: result.email,
+          phone: phone.trim() || undefined,
+          dev_otps: result.dev_otps,
+        });
+      }
+      // If verification not required (shouldn't happen), navigation handled by App.tsx
     } catch (error: any) {
       Alert.alert('Signup Failed', error.message || 'Failed to create account');
     } finally {
@@ -201,20 +210,30 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
     color: '#0f172a',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   button: {
-    backgroundColor: '#0ea5a4',
+    backgroundColor: '#0d9488',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 24,
+    shadowColor: '#0d9488',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   buttonDisabled: {
     opacity: 0.6,

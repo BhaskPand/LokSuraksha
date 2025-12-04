@@ -49,3 +49,6 @@ export async function takePhoto(): Promise<string | null> {
   return null;
 }
 
+
+
+

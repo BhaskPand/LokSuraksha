@@ -43,3 +43,6 @@ In a workspace/mono-repo setup, `react-native-reanimated` is installed at the ro
 
 The babel config now correctly points to the reanimated plugin in the root node_modules directory.
 
+
+
+

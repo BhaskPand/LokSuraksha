@@ -2,18 +2,23 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 
-const dbPath = process.env.DATABASE_PATH || './data/citizen_safety.db';
+const dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), 'data', 'citizen_safety.db');
 const dbDir = path.dirname(dbPath);
 
-// Ensure directory exists
+// Ensure data directory exists
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
 
+// Create database connection
 export const db = new Database(dbPath);
-db.pragma('journal_mode = WAL');
+
+// Enable foreign keys
+db.pragma('foreign_keys = ON');
 
 export function initDatabase() {
+  console.log('Initializing database...');
+
   // Create users table
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
@@ -22,54 +27,77 @@ export function initDatabase() {
       password TEXT NOT NULL,
       name TEXT NOT NULL,
       phone TEXT,
-      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
+      email_verified INTEGER NOT NULL DEFAULT 0,
+      phone_verified INTEGER NOT NULL DEFAULT 0,
+      email_otp TEXT,
+      phone_otp TEXT,
+      otp_expiry TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
   `);
 
-  // Create issues table or migrate existing one
-  const tableInfo = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='issues'").get() as any;
-  
-  if (tableInfo) {
-    // Table exists, check if user_id column exists
-    const columns = db.prepare("PRAGMA table_info(issues)").all() as any[];
-    const hasUserId = columns.some(col => col.name === 'user_id');
+  // Migration: Add verification columns if they don't exist
+  try {
+    const tableInfo = db.prepare("PRAGMA table_info(users)").all() as any[];
+    const hasEmailVerified = tableInfo.some((col: any) => col.name === 'email_verified');
+    
+    if (!hasEmailVerified) {
+      console.log('Adding verification columns to users table...');
+      db.exec('ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0');
+      db.exec('ALTER TABLE users ADD COLUMN phone_verified INTEGER NOT NULL DEFAULT 0');
+      db.exec('ALTER TABLE users ADD COLUMN email_otp TEXT');
+      db.exec('ALTER TABLE users ADD COLUMN phone_otp TEXT');
+      db.exec('ALTER TABLE users ADD COLUMN otp_expiry TEXT');
+    }
+  } catch (error) {
+    console.warn('Migration check failed:', error);
+  }
+
+  // Create issues table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS issues (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      title TEXT NOT NULL,
+      description TEXT NOT NULL,
+      category TEXT NOT NULL,
+      location_lat REAL NOT NULL,
+      location_lng REAL NOT NULL,
+      images TEXT NOT NULL DEFAULT '[]',
+      contact_name TEXT,
+      contact_phone TEXT,
+      status TEXT NOT NULL DEFAULT 'open',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      notes TEXT,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    )
+  `);
+
+  // Migration: Add user_id column if it doesn't exist
+  try {
+    const tableInfo = db.prepare("PRAGMA table_info(issues)").all() as any[];
+    const hasUserId = tableInfo.some((col: any) => col.name === 'user_id');
     
     if (!hasUserId) {
-      // Add user_id column to existing table
-      db.exec(`
-        ALTER TABLE issues ADD COLUMN user_id INTEGER;
-        CREATE INDEX IF NOT EXISTS idx_user_id ON issues(user_id);
-      `);
+      console.log('Adding user_id column to issues table...');
+      db.exec('ALTER TABLE issues ADD COLUMN user_id INTEGER');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_issues_user_id ON issues(user_id)');
     }
-  } else {
-    // Create new issues table with user_id
-    db.exec(`
-      CREATE TABLE issues (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL,
-        category TEXT NOT NULL,
-        location_lat REAL NOT NULL,
-        location_lng REAL NOT NULL,
-        images TEXT,
-        contact_name TEXT,
-        contact_phone TEXT,
-        status TEXT NOT NULL DEFAULT 'open',
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        notes TEXT,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-      );
-    `);
+  } catch (error) {
+    console.warn('Migration check failed:', error);
   }
 
   // Create indexes
-  db.exec(`
-    CREATE INDEX IF NOT EXISTS idx_category ON issues(category);
-    CREATE INDEX IF NOT EXISTS idx_status ON issues(status);
-    CREATE INDEX IF NOT EXISTS idx_created_at ON issues(created_at);
-    CREATE INDEX IF NOT EXISTS idx_user_id ON issues(user_id);
-    CREATE INDEX IF NOT EXISTS idx_user_email ON users(email);
-  `);
+  db.exec('CREATE INDEX IF NOT EXISTS idx_issues_category ON issues(category)');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_issues_status ON issues(status)');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_issues_created_at ON issues(created_at)');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)');
+
+  console.log('Database initialized successfully!');
 }
+
+// Initialize database on import
+initDatabase();
+
+
 

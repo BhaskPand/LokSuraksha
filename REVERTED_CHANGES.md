@@ -35,3 +35,6 @@ The app should now work without the drawer navigation and complex babel setup. Y
 2. Test all features
 3. Add drawer navigation back later if needed (with proper setup)
 
+
+
+

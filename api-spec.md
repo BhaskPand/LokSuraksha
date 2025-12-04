@@ -237,3 +237,6 @@ All error responses follow this format:
 - `404`: Not Found
 - `500`: Internal Server Error
 
+
+
+

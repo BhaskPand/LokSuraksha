@@ -1,4 +1,4 @@
-import { db } from './database';
+import { db, initDatabase } from './database';
 import { IssueStatus } from '@citizen-safety/shared';
 
 const sampleIssues = [
@@ -26,14 +26,23 @@ const sampleIssues = [
 
 export function seedDatabase() {
   console.log('Seeding database...');
+  
+  // Check if issues already exist
+  const existingCount = db.prepare('SELECT COUNT(*) as count FROM issues').get() as { count: number };
+  if (existingCount.count > 0) {
+    console.log(`Database already has ${existingCount.count} issues. Skipping seed.`);
+    return;
+  }
+  
   const stmt = db.prepare(`
-    INSERT INTO issues (title, description, category, location_lat, location_lng, images, status, contact_name, contact_phone)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO issues (user_id, title, description, category, location_lat, location_lng, images, status, contact_name, contact_phone)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const insertMany = db.transaction((issues) => {
     for (const issue of issues) {
       stmt.run(
+        null, // user_id - null for sample data
         issue.title,
         issue.description,
         issue.category,
@@ -52,6 +61,9 @@ export function seedDatabase() {
 }
 
 if (require.main === module) {
+  // Initialize database before seeding
+  initDatabase();
   seedDatabase();
 }
+
 

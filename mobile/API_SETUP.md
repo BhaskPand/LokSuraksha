@@ -96,3 +96,6 @@ sed -i '' "s|http://localhost:3001|http://$IP:3001|g" mobile/app.json
 echo "Updated app.json with IP: $IP"
 ```
 
+
+
+

@@ -29,3 +29,6 @@ EXPOSE 3001
 # Run migrations and start
 CMD ["sh", "-c", "npm run migrate && npm start"]
 
+
+
+

@@ -6,17 +6,22 @@ import {
   updateIssue,
   exportIssues,
   getIssueImage,
+  getStatistics,
 } from '../controllers/issues';
-import { requireAdmin } from '../middleware/auth';
+import { requireAdmin, requireAuth } from '../middleware/auth';
 
 const router = Router();
 
 router.get('/', getIssues);
+router.get('/statistics', getStatistics);
 router.get('/export.csv', requireAdmin, exportIssues);
 router.get('/:id', getIssue);
 router.get('/:id/image/:index', getIssueImage);
 router.post('/', createIssue);
-router.patch('/:id', requireAdmin, updateIssue);
+// Allow authenticated users to update their own issues, or admins to update any issue
+router.patch('/:id', requireAuth, updateIssue);
 
 export default router;
+
+
 

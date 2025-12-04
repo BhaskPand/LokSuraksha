@@ -1,0 +1,179 @@
+.issues-list-page {
+  animation: fadeIn 0.6s ease-out;
+  padding: var(--spacing-xl);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.issues-list-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-slate-600);
+  text-decoration: none;
+  font-weight: 500;
+  margin-bottom: var(--spacing-lg);
+  transition: color 0.2s ease;
+}
+
+.issues-list-back:hover {
+  color: var(--color-primary);
+}
+
+.issues-list-header {
+  margin-bottom: var(--spacing-xl);
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.issues-list-header h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--color-slate-900);
+  margin: 0 0 var(--spacing-sm) 0;
+  letter-spacing: -0.02em;
+}
+
+.issues-list-subtitle {
+  font-size: 1.125rem;
+  color: var(--color-slate-600);
+  margin: 0;
+}
+
+.issues-list-loading-header {
+  margin-bottom: var(--spacing-xl);
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.issues-list-loading-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-slate-700);
+}
+
+.issues-list-issues {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: var(--spacing-lg);
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+.issues-list-issues.list-view {
+  grid-template-columns: 1fr;
+}
+
+.issues-list-issues.list-view .issue-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.issues-list-issues.list-view .issue-card-header {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.issues-list-issues.list-view .issue-card-description {
+  flex: 1;
+  margin-bottom: 0;
+  -webkit-line-clamp: 1;
+}
+
+.issues-list-issues.list-view .issue-card-meta {
+  flex-shrink: 0;
+}
+
+.issues-list-empty {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--color-slate-500);
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.6s ease-out;
+}
+
+.issues-list-empty .empty-icon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-md);
+  opacity: 0.5;
+}
+
+.issues-list-empty .empty-hint {
+  font-size: 0.875rem;
+  color: var(--color-slate-400);
+  margin-top: var(--spacing-sm);
+}
+
+.issues-list-error {
+  background: #fef2f2;
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-error);
+  box-shadow: var(--shadow-sm);
+  animation: shake 0.5s ease-out;
+}
+
+.issues-list-error button {
+  margin-top: var(--spacing-sm);
+  background: var(--color-error);
+  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.issues-list-error button:hover {
+  background: var(--color-error-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+@media (max-width: 768px) {
+  .issues-list-page {
+    padding: var(--spacing-lg);
+  }
+
+  .issues-list-header h1 {
+    font-size: 2rem;
+  }
+
+  .issues-list-issues {
+    grid-template-columns: 1fr;
+  }
+}
+

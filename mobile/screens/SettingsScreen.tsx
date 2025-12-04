@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../contexts/AuthContext';
 
 const SETTINGS_KEYS = {
   SOS_AUTO_SEND: '@loksuraksha:sos_auto_send',
@@ -20,6 +21,7 @@ const SETTINGS_KEYS = {
 };
 
 export default function SettingsScreen() {
+  const { deleteAccount } = useAuth();
   const [sosAutoSend, setSosAutoSend] = useState(true);
   const [shareLocation, setShareLocation] = useState(true);
   const [notifications, setNotifications] = useState(true);
@@ -53,6 +55,28 @@ export default function SettingsScreen() {
             // Clear all AsyncStorage data
             await AsyncStorage.clear();
             Alert.alert('Success', 'All data has been cleared.');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to delete your account? This will permanently delete:\n\n• Your account and profile\n• All your reported issues\n• All your settings and data\n\nThis action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete Account',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteAccount();
+              // Navigation will be handled by App.tsx after account deletion
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'Failed to delete account');
+            }
           },
         },
       ]
@@ -156,6 +180,23 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
 
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Account</Text>
+          
+          <TouchableOpacity style={styles.settingItem} onPress={handleDeleteAccount}>
+            <View style={styles.settingInfo}>
+              <MaterialCommunityIcons name="account-remove" size={24} color="#dc2626" />
+              <View style={styles.settingText}>
+                <Text style={[styles.settingLabel, { color: '#dc2626' }]}>Delete Account</Text>
+                <Text style={styles.settingDescription}>
+                  Permanently delete your account and all data
+                </Text>
+              </View>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={24} color="#cbd5e1" />
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.footer}>
           <Text style={styles.footerText}>LokSuraksha v1.0.0</Text>
           <Text style={styles.footerText}>© 2024 All rights reserved</Text>
@@ -227,4 +268,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
 });
+
+
+
 

@@ -10,6 +10,18 @@ const { width } = Dimensions.get('window');
 const GRID_PADDING = 16;
 const ITEM_WIDTH = (width - GRID_PADDING * 4) / 3; // 3 columns with padding
 
+// Responsive adjustments
+const getResponsiveItemWidth = () => {
+  if (width < 375) {
+    // Small devices
+    return (width - 12 * 4) / 3;
+  } else if (width >= 768) {
+    // Tablets - show more columns
+    return (width - 20 * 6) / 4;
+  }
+  return ITEM_WIDTH;
+};
+
 /**
  * HomeScreen - Main screen with 3x3 grid of action buttons
  * Beautiful LokSuraksha design with red header, grid layout, and SOS button
@@ -50,7 +62,7 @@ export default function HomeScreen() {
               text: 'Send SOS',
               style: 'destructive',
               onPress: () => {
-                (navigation as any).navigate('SOS');
+                (navigation as any).navigate('MainTabs', { screen: 'SOS' });
               },
             },
           ]
@@ -92,7 +104,7 @@ export default function HomeScreen() {
         );
         break;
       case 'safe-zone':
-        (navigation as any).navigate('WomenSafety');
+        (navigation as any).navigate('MainTabs', { screen: 'WomenSafety' });
         break;
       case 'travel-safe':
         Alert.alert('Travel Safe', 'Feature coming soon');
@@ -104,7 +116,7 @@ export default function HomeScreen() {
         Alert.alert('Vehicle Search', 'Feature coming soon');
         break;
       case 'emergency-calls':
-        (navigation as any).navigate('Contact');
+        (navigation as any).navigate('MainTabs', { screen: 'Contact' });
         break;
       default:
         console.log(`Action for ${key} not implemented`);
@@ -132,7 +144,7 @@ export default function HomeScreen() {
                 key={item.key}
                 style={[
                   styles.gridItem,
-                  { width: ITEM_WIDTH },
+                  { width: getResponsiveItemWidth() },
                   isCenter && styles.centerItem,
                 ]}
               >

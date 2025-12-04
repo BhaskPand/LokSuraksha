@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { CreateIssueRequest, Issue, IssueListResponse, UpdateIssueRequest } from './types';
+import { CreateIssueRequest, Issue, IssueListResponse, UpdateIssueRequest, Statistics } from './types';
 
 export class ApiClient {
   private client: AxiosInstance;
@@ -63,6 +63,37 @@ export class ApiClient {
     const response = await this.client.get(`/api/issues/${id}/image/${index}`, {
       responseType: 'text',
     });
+    return response.data;
+  }
+
+  async getStatistics(): Promise<Statistics> {
+    const response = await this.client.get('/api/issues/statistics');
+    return response.data;
+  }
+
+  // Auth methods
+  async signup(data: {
+    email: string;
+    password: string;
+    name: string;
+    phone?: string;
+  }): Promise<{ user: any; requiresVerification: boolean; dev_otps?: { email_otp?: string; phone_otp?: string } }> {
+    const response = await this.client.post('/api/auth/signup', data);
+    return response.data;
+  }
+
+  async login(email: string, password: string): Promise<{ user: any; token: string }> {
+    const response = await this.client.post('/api/auth/login', { email, password });
+    return response.data;
+  }
+
+  async sendVerificationOTP(email: string, type: 'email' | 'phone'): Promise<{ message: string; dev_otp?: string }> {
+    const response = await this.client.post('/api/auth/send-otp', { email, type });
+    return response.data;
+  }
+
+  async verifyOTP(email: string, otp: string, type: 'email' | 'phone'): Promise<{ message: string; user: any }> {
+    const response = await this.client.post('/api/auth/verify-otp', { email, otp, type });
     return response.data;
   }
 }

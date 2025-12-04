@@ -46,3 +46,6 @@ echo "3. Start web: npm run dev:web"
 echo "4. Start mobile: npm run dev:mobile"
 echo ""
 
+
+
+

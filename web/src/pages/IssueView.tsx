@@ -7,7 +7,7 @@ import './IssueView.css';
 const statusOptions: IssueStatus[] = ['open', 'in_progress', 'resolved'];
 
 export default function IssueView() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
   const [issue, setIssue] = useState<Issue | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

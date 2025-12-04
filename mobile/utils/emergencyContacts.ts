@@ -81,3 +81,6 @@ export async function getPrimaryContacts(): Promise<EmergencyContact[]> {
   return contacts.filter((c) => c.isPrimary !== false);
 }
 
+
+
+

@@ -6,24 +6,34 @@ import { useEffect } from 'react';
 import { AppState, View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { syncQueuedIssues } from './utils/syncQueue';
+import LoadingScreen from './components/LoadingScreen';
 
 // Screens
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
+import EmailVerificationScreen from './screens/EmailVerificationScreen';
+import PhoneVerificationScreen from './screens/PhoneVerificationScreen';
 import HomeScreen from './screens/HomeScreen';
 import ReportScreen from './screens/ReportScreen';
 import ViewIssuesScreen from './screens/ViewIssuesScreen';
+import IssueDetailScreen from './screens/IssueDetailScreen';
+import EditIssueScreen from './screens/EditIssueScreen';
 import SOSScreen from './screens/SOSScreen';
 import ContactScreen from './screens/ContactScreen';
 import WomenSafetyScreen from './screens/WomenSafetyScreen';
 import SuccessScreen from './screens/SuccessScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import EditProfileScreen from './screens/EditProfileScreen';
+import ChangePasswordScreen from './screens/ChangePasswordScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import { Issue } from '@citizen-safety/shared';
 
 // Auth Stack
 export type AuthStackParamList = {
   Login: undefined;
   Signup: undefined;
+  EmailVerification: { email: string; dev_otps?: { email_otp?: string; phone_otp?: string } };
+  PhoneVerification: { email: string; phone: string; dev_otps?: { email_otp?: string; phone_otp?: string } };
 };
 
 // Main Stack
@@ -32,7 +42,11 @@ export type MainStackParamList = {
   Report: undefined;
   Success: { issueId: number; createdAt: string };
   ViewIssues: undefined;
+  IssueDetail: { issueId: number };
+  EditIssue: { issue: Issue };
   Profile: undefined;
+  EditProfile: undefined;
+  ChangePassword: undefined;
   Settings: undefined;
 };
 
@@ -150,9 +164,29 @@ function MainNavigator() {
           options={{ title: 'My Issues' }}
         />
         <MainStack.Screen
+          name="IssueDetail"
+          component={IssueDetailScreen}
+          options={{ title: 'Issue Details' }}
+        />
+        <MainStack.Screen
+          name="EditIssue"
+          component={EditIssueScreen}
+          options={{ title: 'Edit Issue' }}
+        />
+        <MainStack.Screen
           name="Profile"
           component={ProfileScreen}
           options={{ title: 'Profile' }}
+        />
+        <MainStack.Screen
+          name="EditProfile"
+          component={EditProfileScreen}
+          options={{ title: 'Edit Profile' }}
+        />
+        <MainStack.Screen
+          name="ChangePassword"
+          component={ChangePasswordScreen}
+          options={{ title: 'Change Password' }}
         />
         <MainStack.Screen
           name="Settings"
@@ -172,12 +206,14 @@ function AuthNavigator() {
     >
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Signup" component={SignupScreen} />
+      <AuthStack.Screen name="EmailVerification" component={EmailVerificationScreen} />
+      <AuthStack.Screen name="PhoneVerification" component={PhoneVerificationScreen} />
     </AuthStack.Navigator>
   );
 }
 
 function AppContent() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, transitionLoading } = useAuth();
 
   // Sync queued issues when app comes to foreground
   useEffect(() => {
@@ -202,6 +238,11 @@ function AppContent() {
         <ActivityIndicator size="large" color="#0ea5a4" />
       </View>
     );
+  }
+
+  // Show beautiful loading screen during login/logout transitions
+  if (transitionLoading) {
+    return <LoadingScreen message={isAuthenticated ? 'Welcome back!' : 'Logging out...'} />;
   }
 
   return isAuthenticated ? <MainNavigator /> : <AuthNavigator />;

@@ -67,3 +67,6 @@ For native build issues, you may need to:
 - Delete `ios/` and `android/` folders (if they exist)
 - Regenerate native projects: `npx expo prebuild`
 
+
+
+

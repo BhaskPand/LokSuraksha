@@ -1,18 +1,50 @@
 .issue-card {
   display: block;
-  background-color: white;
+  background: white;
   border: 1px solid var(--color-slate-200);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-md);
-  transition: all 0.2s;
+  margin-bottom: 0;
+  transition: all 0.2s ease;
   text-decoration: none;
   color: inherit;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  animation: slideUp 0.5s ease-out both;
+}
+
+.issue-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: var(--color-primary);
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
+}
+
+.issue-card:hover::before {
+  transform: scaleY(1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .issue-card:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+  border-color: var(--color-slate-300);
   text-decoration: none;
 }
 
@@ -32,13 +64,14 @@
 }
 
 .issue-card-status {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--radius-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
 .issue-card-description {
@@ -56,11 +89,17 @@
   align-items: center;
   font-size: 0.875rem;
   color: var(--color-slate-500);
+  gap: var(--spacing-md);
+}
+
+.issue-card-date {
+  white-space: nowrap;
+  font-size: 0.8125rem;
 }
 
 .issue-card-category {
   font-weight: 500;
-  color: var(--color-teal-600);
+  color: var(--color-secondary);
 }
 
 .issue-card-images {
@@ -68,4 +107,5 @@
   font-size: 0.875rem;
   color: var(--color-slate-500);
 }
+
 

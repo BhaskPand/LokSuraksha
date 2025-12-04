@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   Alert,
   RefreshControl,
+  Linking,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import {
@@ -93,7 +94,14 @@ export default function ContactScreen() {
   const handleCall = (phone: string) => {
     Alert.alert('Call', `Call ${phone}?`, [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Call', onPress: () => console.log('Calling:', phone) },
+      { 
+        text: 'Call', 
+        onPress: () => {
+          Linking.openURL(`tel:${phone}`).catch((err) => {
+            Alert.alert('Error', 'Unable to make call. Please dial the number manually.');
+          });
+        }
+      },
     ]);
   };
 

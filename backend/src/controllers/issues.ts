@@ -80,14 +80,62 @@ export async function updateIssue(req: Request, res: Response) {
       return res.status(400).json({ error: 'Invalid issue ID' });
     }
 
-    const data: UpdateIssueRequest = req.body;
-    const issue = IssueModel.update(id, data);
-
-    if (!issue) {
+    // Check if issue exists
+    const existingIssue = IssueModel.findById(id);
+    if (!existingIssue) {
       return res.status(404).json({ error: 'Issue not found' });
     }
 
-    res.json(issue);
+    const data: UpdateIssueRequest & { userId?: number } = req.body;
+    const userId = (req as any).userId || data.userId;
+
+    // Check permissions:
+    // - Admin can update status and notes
+    // - Users can only update their own issues (title, description, category, images, contact)
+    // - Users cannot update status or notes
+    const isUserOwnIssue = userId && existingIssue.user_id === userId;
+    const hasAdminFields = data.status !== undefined || data.notes !== undefined;
+    const hasUserFields = data.title !== undefined || data.description !== undefined || 
+                         data.category !== undefined || data.images !== undefined ||
+                         data.contact_name !== undefined || data.contact_phone !== undefined;
+
+    if (isUserOwnIssue && hasUserFields) {
+      // User editing their own issue - restrict to user-editable fields only
+      const userEditableData: UpdateIssueRequest = {
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        images: data.images,
+        contact_name: data.contact_name,
+        contact_phone: data.contact_phone,
+      };
+      // Remove undefined fields
+      Object.keys(userEditableData).forEach(key => {
+        if (userEditableData[key as keyof UpdateIssueRequest] === undefined) {
+          delete userEditableData[key as keyof UpdateIssueRequest];
+        }
+      });
+      const issue = IssueModel.update(id, userEditableData);
+      return res.json(issue);
+    } else if (hasAdminFields) {
+      // Admin update (status and notes) - requires admin token which is checked by requireAdmin middleware
+      const adminData: UpdateIssueRequest = {
+        status: data.status,
+        notes: data.notes,
+      };
+      // Remove undefined fields
+      Object.keys(adminData).forEach(key => {
+        if (adminData[key as keyof UpdateIssueRequest] === undefined) {
+          delete adminData[key as keyof UpdateIssueRequest];
+        }
+      });
+      const issue = IssueModel.update(id, adminData);
+      return res.json(issue);
+    } else if (!isUserOwnIssue && hasUserFields) {
+      return res.status(403).json({ error: 'Forbidden: You can only edit your own issues' });
+    } else {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
   } catch (error) {
     console.error('Error updating issue:', error);
     res.status(500).json({ error: 'Failed to update issue' });
@@ -179,6 +227,16 @@ export async function getIssueImage(req: Request, res: Response) {
   } catch (error) {
     console.error('Error fetching image:', error);
     res.status(500).json({ error: 'Failed to fetch image' });
+  }
+}
+
+export async function getStatistics(req: Request, res: Response) {
+  try {
+    const statistics = IssueModel.getStatistics();
+    res.json(statistics);
+  } catch (error) {
+    console.error('Error fetching statistics:', error);
+    res.status(500).json({ error: 'Failed to fetch statistics' });
   }
 }
 

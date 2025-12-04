@@ -137,3 +137,6 @@ Added `react-native-reanimated/plugin` for animations to work properly.
 
 Enjoy your beautiful LokSuraksha app! 🛡️
 
+
+
+

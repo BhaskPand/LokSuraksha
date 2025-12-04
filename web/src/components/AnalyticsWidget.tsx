@@ -35,8 +35,15 @@ export default function AnalyticsWidget({ issues }: AnalyticsWidgetProps) {
           {
             label: 'Issues by Category',
             data: Object.values(categoryCounts),
-            backgroundColor: 'var(--color-teal-500)',
-            borderRadius: 4,
+            backgroundColor: [
+              'rgba(102, 126, 234, 0.8)',
+              'rgba(14, 165, 164, 0.8)',
+              'rgba(147, 51, 234, 0.8)',
+              'rgba(59, 130, 246, 0.8)',
+              'rgba(236, 72, 153, 0.8)',
+            ],
+            borderRadius: 8,
+            borderSkipped: false,
           },
         ],
       },
@@ -47,11 +54,12 @@ export default function AnalyticsWidget({ issues }: AnalyticsWidgetProps) {
             label: 'Issues by Status',
             data: Object.values(statusCounts),
             backgroundColor: [
-              'var(--color-blue-600)',
-              'var(--color-yellow-600)',
-              'var(--color-green-600)',
+              'rgba(37, 99, 235, 0.8)',
+              'rgba(202, 138, 4, 0.8)',
+              'rgba(22, 163, 74, 0.8)',
             ],
-            borderRadius: 4,
+            borderRadius: 8,
+            borderSkipped: false,
           },
         ],
       },
@@ -65,12 +73,41 @@ export default function AnalyticsWidget({ issues }: AnalyticsWidgetProps) {
       legend: {
         display: false,
       },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        titleFont: {
+          size: 14,
+          weight: 'bold' as const,
+        },
+        bodyFont: {
+          size: 13,
+        },
+        cornerRadius: 8,
+        displayColors: true,
+      },
     },
     scales: {
       y: {
         beginAtZero: true,
         ticks: {
           stepSize: 1,
+          font: {
+            size: 11,
+          },
+        },
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 11,
+          },
+        },
+        grid: {
+          display: false,
         },
       },
     },
@@ -96,4 +133,5 @@ export default function AnalyticsWidget({ issues }: AnalyticsWidgetProps) {
     </div>
   );
 }
+
 

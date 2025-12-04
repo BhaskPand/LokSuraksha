@@ -11,8 +11,13 @@
 .issue-view-back {
   display: inline-block;
   margin-bottom: var(--spacing-lg);
-  color: var(--color-blue-600);
+  color: var(--color-primary);
   font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.issue-view-back:hover {
+  color: var(--color-primary-dark);
 }
 
 .issue-view-header {
@@ -78,8 +83,13 @@
 .issue-view-map-link {
   display: inline-block;
   margin-top: var(--spacing-sm);
-  color: var(--color-blue-600);
+  color: var(--color-primary);
   font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.issue-view-map-link:hover {
+  color: var(--color-primary-dark);
 }
 
 .issue-view-images {
@@ -135,14 +145,18 @@
 
 .issue-view-update-btn {
   width: 100%;
-  background-color: var(--color-teal-600);
+  background-color: var(--color-primary);
   color: white;
   font-weight: 500;
   padding: var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
 }
 
 .issue-view-update-btn:hover {
-  background-color: var(--color-teal-500);
+  background-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-sm);
 }
 
 .issue-view-update-btn:disabled {
@@ -174,4 +188,7 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+
 

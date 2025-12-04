@@ -30,7 +30,22 @@ export default function LoginScreen({ navigation }: any) {
       await login(email.trim(), password);
       // Navigation will be handled by App.tsx based on auth state
     } catch (error: any) {
-      Alert.alert('Login Failed', error.message || 'Invalid email or password');
+      // Check if email verification is required
+      if (error.requiresVerification && !error.email_verified) {
+        Alert.alert(
+          'Email Not Verified',
+          'Please verify your email before logging in.',
+          [
+            {
+              text: 'Verify Email',
+              onPress: () => navigation.navigate('EmailVerification', { email: email.trim() }),
+            },
+            { text: 'Cancel', style: 'cancel' },
+          ]
+        );
+      } else {
+        Alert.alert('Login Failed', error.message || 'Invalid email or password');
+      }
     } finally {
       setLoading(false);
     }
@@ -151,25 +166,30 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
     color: '#1e293b',
-    shadowColor: '#64748b',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
   },
   button: {
-    backgroundColor: '#0d9488', // Muted teal
+    backgroundColor: '#0d9488',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 24,
+    shadowColor: '#0d9488',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   buttonDisabled: {
     opacity: 0.6,

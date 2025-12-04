@@ -8,10 +8,15 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { MainStackParamList } from '../App';
 import { useAuth } from '../contexts/AuthContext';
 import { Issue } from '@citizen-safety/shared';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+type NavigationProp = NativeStackNavigationProp<MainStackParamList, 'ViewIssues'>;
 
 const statusColors: Record<string, string> = {
   open: '#2563eb',
@@ -26,10 +31,15 @@ const statusLabels: Record<string, string> = {
 };
 
 export default function ViewIssuesScreen() {
+  const navigation = useNavigation<NavigationProp>();
   const { user } = useAuth();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  const handleIssuePress = (issue: Issue) => {
+    (navigation as any).navigate('IssueDetail', { issueId: issue.id });
+  };
 
   const fetchIssues = async () => {
     if (!user) {
@@ -101,7 +111,12 @@ export default function ViewIssuesScreen() {
           </View>
         ) : (
           issues.map((issue) => (
-            <TouchableOpacity key={issue.id} style={styles.issueCard}>
+            <TouchableOpacity
+              key={issue.id}
+              style={styles.issueCard}
+              onPress={() => handleIssuePress(issue)}
+              activeOpacity={0.7}
+            >
               <View style={styles.issueHeader}>
                 <View style={styles.issueHeaderLeft}>
                   <Text style={styles.issueTitle}>{issue.title}</Text>
@@ -215,14 +230,14 @@ const styles = StyleSheet.create({
     margin: 16,
     marginBottom: 0,
     padding: 18,
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#cbd5e1',
-    shadowColor: '#64748b',
-    shadowOffset: { width: 0, height: 1 },
+    borderColor: '#e2e8f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   issueHeader: {
     flexDirection: 'row',
