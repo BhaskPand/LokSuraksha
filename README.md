@@ -424,5 +424,305 @@ MIT License - see LICENSE file
 
 ---
 
+# Technologies Used in LokSuraksha Project
+
+## 🏗️ Architecture
+- **Monorepo Structure** - NPM Workspaces
+- **TypeScript** - Type-safe development across all packages
+- **Node.js** - Runtime environment (>=18.0.0)
+- **NPM** - Package manager (>=9.0.0)
+
+---
+
+## 🔧 Backend Technologies
+
+### Core Framework & Runtime
+- **Node.js** - JavaScript runtime
+- **Express.js** (v4.18.2) - Web framework
+- **TypeScript** (v5.3.3) - Type-safe JavaScript
+- **TSX** (v4.7.0) - TypeScript execution for development
+
+### Database
+- **SQLite3** (better-sqlite3 v9.2.2) - Embedded database
+- **Database Migrations** - Custom migration system
+
+### Middleware & Utilities
+- **CORS** (v2.8.5) - Cross-Origin Resource Sharing
+- **dotenv** (v16.3.1) - Environment variable management
+
+### Testing
+- **Jest** (v29.7.0) - Testing framework
+- **Supertest** (v6.3.3) - HTTP assertion library
+- **ts-jest** (v29.1.1) - TypeScript preprocessor for Jest
+
+### Type Definitions
+- @types/cors, @types/express, @types/jest, @types/node, @types/supertest
+
+---
+
+## 📱 Mobile App Technologies (React Native / Expo)
+
+### Core Framework
+- **React Native** (v0.81.5) - Mobile app framework
+- **React** (v19.1.0) - UI library
+- **Expo** (v54.0.25) - React Native development platform
+
+### Navigation
+- **React Navigation** (v6.1.18) - Navigation library
+  - @react-navigation/native (v6.1.18)
+  - @react-navigation/native-stack (v6.11.0)
+  - @react-navigation/bottom-tabs (v6.6.1)
+
+### UI & Icons
+- **@expo/vector-icons** (v15.0.3) - Icon library (MaterialCommunityIcons)
+- **expo-linear-gradient** (v15.0.7) - Gradient components
+
+### Storage & State Management
+- **@react-native-async-storage/async-storage** (v2.1.0) - Local storage
+- **React Context API** - State management
+
+### Device Features
+- **expo-location** (v19.0.7) - GPS and location services
+- **expo-image-picker** (v17.0.8) - Camera and photo library access
+- **expo-notifications** (v0.32.13) - Push notifications
+- **expo-sms** (v14.0.7) - SMS sending
+- **expo-clipboard** (v8.0.7) - Clipboard operations
+- **expo-sharing** (v14.0.7) - Share functionality
+- **expo-linking** (v8.0.9) - Deep linking and URL handling
+- **expo-status-bar** (v3.0.8) - Status bar control
+
+### Network & Connectivity
+- **@react-native-community/netinfo** (v11.3.1) - Network status detection
+- **Axios** (via shared package) - HTTP client
+
+### Gestures & UI Enhancements
+- **react-native-gesture-handler** (v2.28.0) - Gesture recognition
+- **react-native-safe-area-context** (v5.6.0) - Safe area handling
+- **react-native-screens** (v4.16.0) - Native screen components
+
+### Development Tools
+- **Babel** (@babel/core v7.20.0) - JavaScript compiler
+- **TypeScript** (v5.3.3) - Type checking
+
+### Platform Support
+- **iOS** - Native iOS support
+- **Android** - Native Android support
+- **Web** - Web platform support (via Expo Web)
+
+---
+
+## 🌐 Web App Technologies
+
+### Core Framework
+- **React** (v18.2.0) - UI library
+- **React DOM** (v18.2.0) - DOM rendering
+- **TypeScript** (v5.3.3) - Type-safe development
+
+### Build Tool & Dev Server
+- **Vite** (v5.0.8) - Fast build tool and dev server
+- **@vitejs/plugin-react** (v4.2.1) - React plugin for Vite
+
+### Routing
+- **React Router DOM** (v6.21.1) - Client-side routing
+
+### HTTP Client
+- **Axios** (v1.6.2) - HTTP client library
+
+### Data Visualization
+- **Chart.js** (v4.4.1) - Charting library
+- **react-chartjs-2** (v5.2.0) - React wrapper for Chart.js
+
+### Type Definitions
+- @types/react (v18.2.45)
+- @types/react-dom (v18.2.18)
+
+---
+
+## 📦 Shared Package
+
+### Core
+- **TypeScript** (v5.3.3) - Shared type definitions
+- **Axios** (v1.6.2) - Shared API client
+
+### Type Definitions
+- @types/node (v20.10.5)
+
+---
+
+## 🛠️ Development Tools
+
+### Build & Compilation
+- **TypeScript Compiler (tsc)** - Type checking and compilation
+- **Vite** - Web app bundler
+- **Babel** - JavaScript/TypeScript transpilation
+- **TSX** - TypeScript execution
+
+### Package Management
+- **NPM Workspaces** - Monorepo package management
+- **Concurrently** (v8.2.2) - Run multiple commands simultaneously
+
+### Code Quality
+- **TypeScript** - Static type checking
+- **ESLint** (implicit via TypeScript strict mode)
+
+---
+
+## 🗄️ Database & Storage
+
+### Database
+- **SQLite3** (better-sqlite3) - Embedded relational database
+- **Custom Migration System** - Database schema versioning
+
+### Storage Solutions
+- **AsyncStorage** (Mobile) - Local key-value storage
+- **File System** - Image and file storage
+
+---
+
+## 🔐 Security & Authentication
+
+### Authentication
+- **JWT (JSON Web Tokens)** - Token-based authentication
+- **bcrypt** (implicit) - Password hashing
+- **OTP (One-Time Password)** - Email and phone verification
+
+### Security Features
+- **CORS** - Cross-origin resource sharing
+- **Environment Variables** - Secure configuration management
+
+---
+
+## 📡 API & Communication
+
+### REST API
+- **Express.js** - RESTful API server
+- **Axios** - HTTP client (shared across web and mobile)
+
+### Notifications
+- **Expo Push Notifications** - Push notification service
+- **Email Service** (Mock/Development) - Email sending
+- **SMS Service** (Mock/Development) - SMS sending
+
+---
+
+## 🎨 UI/UX Technologies
+
+### Styling
+- **CSS3** - Web styling
+- **CSS Animations** - Smooth transitions and animations
+- **CSS Variables** - Theme management
+- **React Native StyleSheet** - Mobile styling
+- **Linear Gradients** - Modern gradient effects
+
+### Design Patterns
+- **Component-Based Architecture** - React components
+- **Context API** - State management
+- **Custom Hooks** - Reusable logic
+
+---
+
+## 📊 Features & Capabilities
+
+### Location Services
+- **GPS** - Location tracking
+- **Geolocation API** - Coordinate-based features
+- **Map Integration** - Location visualization
+
+### Media Handling
+- **Image Picker** - Camera and gallery access
+- **Image Processing** - Base64 encoding/decoding
+- **Image Display** - Responsive image rendering
+
+### Offline Support
+- **Offline Queue** - Queue operations when offline
+- **Network Detection** - Connectivity monitoring
+- **Data Synchronization** - Sync when back online
+
+---
+
+## 🚀 Deployment & DevOps
+
+### Containerization
+- **Docker** (Dockerfile present) - Container support
+- **Docker Compose** - Multi-container orchestration
+
+### Environment Management
+- **dotenv** - Environment configuration
+- **env.example** - Configuration templates
+
+---
+
+## 📝 Documentation & Standards
+
+### Documentation
+- **Markdown** - Documentation format
+- **API Specification** - REST API documentation
+- **TypeScript Types** - Self-documenting code
+
+### Code Standards
+- **TypeScript Strict Mode** - Type safety
+- **ES Module System** - Modern JavaScript modules
+- **CommonJS** - Backend module system
+
+---
+
+## 🔄 Version Control
+
+- **Git** - Version control
+- **GitHub** - Repository hosting
+
+---
+
+## 📋 Summary by Category
+
+### Programming Languages
+- TypeScript (Primary)
+- JavaScript (Compiled)
+- SQL (Database queries)
+- CSS (Styling)
+- JSON (Configuration)
+
+### Frameworks & Libraries
+- React (Web & Mobile)
+- React Native (Mobile)
+- Express.js (Backend)
+- Expo (Mobile Platform)
+
+### Databases
+- SQLite3
+
+### Build Tools
+- Vite (Web)
+- TypeScript Compiler
+- Babel
+- TSX
+
+### Testing
+- Jest
+- Supertest
+
+### Package Managers
+- NPM
+- NPM Workspaces
+
+### Development Tools
+- TypeScript
+- ESLint (implicit)
+- Git
+- Docker
+
+---
+
+## 🎯 Platform Support
+
+- **iOS** - Native iOS app
+- **Android** - Native Android app
+- **Web** - Progressive Web App
+- **Backend** - Node.js server
+
+---
+
+
+
 ***Built with ❤️ for citizen safety and public service***
 
