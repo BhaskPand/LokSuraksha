@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Issue } from '@citizen-safety/shared';
+import { Issue, IssuePriority } from '@citizen-safety/shared';
 import './IssueCard.css';
 
 interface IssueCardProps {
@@ -11,6 +11,20 @@ const statusColors: Record<string, string> = {
   open: 'var(--color-blue-600)',
   in_progress: 'var(--color-yellow-600)',
   resolved: 'var(--color-green-600)',
+};
+
+const priorityColors: Record<IssuePriority, string> = {
+  critical: '#DC2626',
+  high: '#F59E0B',
+  medium: '#3B82F6',
+  low: '#10B981',
+};
+
+const priorityLabels: Record<IssuePriority, string> = {
+  critical: 'Critical',
+  high: 'High',
+  medium: 'Medium',
+  low: 'Low',
 };
 
 function formatTimeAgo(date: Date): string {
@@ -28,13 +42,27 @@ function formatTimeAgo(date: Date): string {
 export default function IssueCard({ issue, style }: IssueCardProps) {
   const statusColor = statusColors[issue.status] || 'var(--color-slate-500)';
 
+  const priorityColor = priorityColors[issue.priority || 'medium'];
+  const priorityLabel = priorityLabels[issue.priority || 'medium'];
+
   return (
     <Link to={`/issues/${issue.id}`} className="issue-card" style={style}>
       <div className="issue-card-header">
         <h3 className="issue-card-title">{issue.title}</h3>
-        <span className="issue-card-status" style={{ backgroundColor: statusColor }}>
-          {issue.status.replace('_', ' ')}
-        </span>
+        <div className="issue-card-badges">
+          {issue.priority && (
+            <span 
+              className="issue-card-priority" 
+              style={{ backgroundColor: priorityColor }}
+              title={`Priority: ${priorityLabel}`}
+            >
+              {priorityLabel}
+            </span>
+          )}
+          <span className="issue-card-status" style={{ backgroundColor: statusColor }}>
+            {issue.status.replace('_', ' ')}
+          </span>
+        </div>
       </div>
       <p className="issue-card-description">{issue.description}</p>
       <div className="issue-card-meta">

@@ -17,13 +17,17 @@
   --color-slate-100: #f1f5f9;
   --color-slate-50: #f8fafc;
   
-  /* Professional Accent Colors */
-  --color-primary: #1e40af; /* Deep professional blue */
-  --color-primary-light: #3b82f6;
-  --color-primary-dark: #1e3a8a;
+  /* Professional Accent Colors - Matching Mobile App */
+  --color-primary: #8B5CF6; /* Purple matching mobile */
+  --color-primary-light: #A78BFA;
+  --color-primary-dark: #7C3AED;
   --color-secondary: #0f766e; /* Muted teal */
   --color-secondary-light: #14b8a6;
-  --color-accent: #4b5563; /* Neutral gray */
+  --color-accent: #8B5CF6; /* Purple accent */
+  
+  /* Gradient Colors */
+  --gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  --gradient-background: linear-gradient(135deg, #F5F3FF 0%, #E9D5FF 100%);
   
   /* Status Colors - Muted and Professional */
   --color-success: #059669;
@@ -73,10 +77,12 @@ body {
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--color-slate-50);
+  background: var(--gradient-background);
+  background-attachment: fixed;
   color: var(--color-slate-900);
   line-height: 1.6;
   min-height: 100vh;
+  transition: background 0.3s ease;
 }
 
 code {
