@@ -17,7 +17,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as Location from 'expo-location';
 import { MainStackParamList } from '../App';
 import { apiClient } from '../api/api';
-import { CreateIssueRequest } from '@citizen-safety/shared';
+import { CreateIssueRequest, IssuePriority } from '@citizen-safety/shared';
 import { pickImage, takePhoto } from '../utils/imageUtils';
 import { queueIssue, isOnline } from '../utils/offlineQueue';
 import { useAuth } from '../contexts/AuthContext';
@@ -34,6 +34,7 @@ export default function ReportScreen() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
+  const [priority, setPriority] = useState<IssuePriority>('medium');
   const [images, setImages] = useState<string[]>([]);
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [contactName, setContactName] = useState('');
@@ -95,6 +96,7 @@ export default function ReportScreen() {
       title: title.trim(),
       description: description.trim(),
       category,
+      priority,
       location_lat: location.lat,
       location_lng: location.lng,
       images: images.length > 0 ? images : undefined,
@@ -234,6 +236,42 @@ export default function ReportScreen() {
       </View>
 
       <View style={styles.section}>
+        <Text style={styles.label}>Priority</Text>
+        <View style={styles.priorityContainer}>
+          {(['critical', 'high', 'medium', 'low'] as IssuePriority[]).map((pri) => {
+            const priorityColors: Record<IssuePriority, string> = {
+              critical: '#DC2626',
+              high: '#F59E0B',
+              medium: '#3B82F6',
+              low: '#10B981',
+            };
+            return (
+              <TouchableOpacity
+                key={pri}
+                style={[
+                  styles.priorityButton,
+                  {
+                    backgroundColor: priority === pri ? priorityColors[pri] : '#F3F4F6',
+                    borderColor: priority === pri ? priorityColors[pri] : '#E5E7EB',
+                  },
+                ]}
+                onPress={() => setPriority(pri)}
+              >
+                <Text
+                  style={[
+                    styles.priorityButtonText,
+                    { color: priority === pri ? '#FFFFFF' : '#6B7280' },
+                  ]}
+                >
+                  {pri.charAt(0).toUpperCase() + pri.slice(1)}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
+      <View style={styles.section}>
         <Text style={styles.label}>Images (up to 3)</Text>
         <View style={styles.imageButtons}>
           <TouchableOpacity
@@ -332,6 +370,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+    paddingBottom: 120, // Extra padding for floating tab bar
   },
   section: {
     marginBottom: 24,
@@ -379,6 +418,22 @@ const styles = StyleSheet.create({
   },
   categoryButtonTextActive: {
     color: '#fff',
+  },
+  priorityContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  priorityButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center',
+  },
+  priorityButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
   },
   imageButtons: {
     flexDirection: 'row',

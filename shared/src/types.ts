@@ -1,4 +1,5 @@
 export type IssueStatus = 'open' | 'in_progress' | 'resolved';
+export type IssuePriority = 'critical' | 'high' | 'medium' | 'low';
 
 export interface Issue {
   id: number;
@@ -12,6 +13,7 @@ export interface Issue {
   contact_name?: string;
   contact_phone?: string;
   status: IssueStatus;
+  priority: IssuePriority;
   created_at: string; // ISO datetime string
   notes?: string;
 }
@@ -25,11 +27,13 @@ export interface CreateIssueRequest {
   images?: string[]; // base64 data URLs
   contact_name?: string;
   contact_phone?: string;
+  priority?: IssuePriority;
 }
 
 export interface UpdateIssueRequest {
   status?: IssueStatus;
   notes?: string;
+  priority?: IssuePriority;
   // User-editable fields
   title?: string;
   description?: string;
@@ -44,6 +48,16 @@ export interface IssueListResponse {
   total: number;
   limit?: number;
   offset?: number;
+}
+
+export interface IssueFilters {
+  status?: IssueStatus;
+  category?: string;
+  priority?: IssuePriority;
+  search?: string;
+  startDate?: string;
+  endDate?: string;
+  userId?: number;
 }
 
 export interface User {

@@ -230,6 +230,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+    paddingBottom: 120, // Extra padding for floating tab bar
   },
   contactCard: {
     backgroundColor: '#ffffff',

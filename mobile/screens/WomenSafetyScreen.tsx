@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f5f9',
   },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: 120, // Extra padding for floating tab bar
   },
   header: {
     backgroundColor: '#ffffff',

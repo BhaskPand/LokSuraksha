@@ -1,11 +1,13 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, Theme as NavTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { AppState, View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { syncQueuedIssues } from './utils/syncQueue';
+import { registerForPushNotifications, addNotificationReceivedListener, addNotificationResponseReceivedListener } from './utils/notifications';
 import LoadingScreen from './components/LoadingScreen';
 
 // Screens
@@ -66,14 +68,16 @@ const MainStack = createNativeStackNavigator<MainStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
 
 function TabNavigator() {
+  const { colors, isDark } = useTheme();
+  
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#8B5CF6', // Pastel purple
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: colors.surface,
           borderTopWidth: 0,
           paddingBottom: 12,
           paddingTop: 12,
@@ -84,7 +88,7 @@ function TabNavigator() {
           position: 'absolute',
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.1,
+          shadowOpacity: isDark ? 0.3 : 0.1,
           shadowRadius: 12,
           elevation: 8,
         },
@@ -231,6 +235,34 @@ function AuthNavigator() {
 function AppContent() {
   const { isAuthenticated, loading, transitionLoading } = useAuth();
 
+  // Register for push notifications
+  useEffect(() => {
+    if (isAuthenticated) {
+      registerForPushNotifications();
+    }
+  }, [isAuthenticated]);
+
+  // Set up notification listeners
+  useEffect(() => {
+    const receivedListener = addNotificationReceivedListener((notification) => {
+      console.log('Notification received:', notification);
+    });
+
+    const responseListener = addNotificationResponseReceivedListener((response) => {
+      console.log('Notification response:', response);
+      const data = response.notification.request.content.data;
+      // Handle notification tap - navigate to issue detail if needed
+      if (data?.issueId) {
+        // Navigation will be handled by the listener
+      }
+    });
+
+    return () => {
+      receivedListener.remove();
+      responseListener.remove();
+    };
+  }, []);
+
   // Sync queued issues when app comes to foreground
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (nextAppState) => {
@@ -266,12 +298,34 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <StatusBar style="auto" />
-        <AppContent />
-      </NavigationContainer>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppWithNavigation />
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}
+
+function AppWithNavigation() {
+  const { colors, isDark } = useTheme();
+  
+  const navTheme: NavTheme = {
+    dark: isDark,
+    colors: {
+      primary: colors.primary,
+      background: colors.background,
+      card: colors.card,
+      text: colors.text,
+      border: colors.border,
+      notification: colors.primary,
+    },
+  };
+
+  return (
+    <NavigationContainer theme={navTheme}>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <AppContent />
+    </NavigationContainer>
   );
 }
 

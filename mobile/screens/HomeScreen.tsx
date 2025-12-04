@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, Alert, SafeAreaView, Dimensions, Li
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import IconGridButton from '../components/IconGridButton';
 import FooterBanner from '../components/FooterBanner';
 
@@ -17,6 +18,7 @@ const CARD_SPACING = 16;
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { user } = useAuth();
+  const { colors } = useTheme();
 
   // Grid items configuration
   const gridItems = [
@@ -127,7 +129,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -137,34 +139,34 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View style={styles.headerTop}>
             <View>
-              <Text style={styles.greeting}>{getGreeting()},</Text>
-              <Text style={styles.userName}>{user?.name?.split(' ')[0] || 'User'}</Text>
+              <Text style={[styles.greeting, { color: colors.text }]}>{getGreeting()},</Text>
+              <Text style={[styles.userName, { color: colors.primary }]}>{user?.name?.split(' ')[0] || 'User'}</Text>
             </View>
             <TouchableOpacity
-              style={styles.profileButton}
+              style={[styles.profileButton, { backgroundColor: colors.surface, shadowColor: colors.shadow }]}
               onPress={() => (navigation as any).navigate('Profile')}
             >
-              <MaterialCommunityIcons name="account-circle" size={40} color="#8B5CF6" />
+              <MaterialCommunityIcons name="account-circle" size={40} color={colors.primary} />
             </TouchableOpacity>
           </View>
-          <Text style={styles.date}>Today {getCurrentDate()}</Text>
+          <Text style={[styles.date, { color: colors.textSecondary }]}>Today {getCurrentDate()}</Text>
         </View>
 
         {/* Hero Section Card - Daily Challenge style */}
-        <View style={styles.heroCard}>
+        <View style={[styles.heroCard, { backgroundColor: colors.card, shadowColor: colors.shadow }]}>
           <View style={styles.heroContent}>
             <View style={styles.heroText}>
-              <Text style={styles.heroTitle}>Stay Safe Today</Text>
-              <Text style={styles.heroSubtitle}>Report issues and get help quickly</Text>
+              <Text style={[styles.heroTitle, { color: colors.text }]}>Stay Safe Today</Text>
+              <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>Report issues and get help quickly</Text>
             </View>
-            <View style={styles.heroIllustration}>
-              <MaterialCommunityIcons name="shield-check" size={48} color="#F59E0B" />
+            <View style={[styles.heroIllustration, { backgroundColor: colors.accent + '20' }]}>
+              <MaterialCommunityIcons name="shield-check" size={48} color={colors.accent} />
             </View>
           </View>
         </View>
 
         {/* Section Title */}
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
 
         {/* Grid of action cards */}
         <View style={styles.gridContainer}>
@@ -210,14 +212,13 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F3FF', // Soft light lavender background
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     padding: CARD_PADDING,
-    paddingBottom: 24,
+    paddingBottom: 120, // Extra padding for floating tab bar (72px height + 16px margin + 32px extra)
   },
   header: {
     marginBottom: 24,
@@ -232,38 +233,31 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1F2937',
     marginBottom: 4,
   },
   userName: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#8B5CF6', // Pastel purple accent
   },
   date: {
     fontSize: 14,
-    color: '#6B7280',
     fontWeight: '500',
   },
   profileButton: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
   },
   heroCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 28,
     padding: 24,
     marginBottom: 32,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
@@ -281,26 +275,22 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1F2937',
     marginBottom: 8,
   },
   heroSubtitle: {
     fontSize: 15,
-    color: '#6B7280',
     lineHeight: 22,
   },
   heroIllustration: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FEF3C7', // Pastel yellow background
     justifyContent: 'center',
     alignItems: 'center',
   },
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1F2937',
     marginBottom: 20,
     marginTop: 8,
   },

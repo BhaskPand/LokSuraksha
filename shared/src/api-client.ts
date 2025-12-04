@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { CreateIssueRequest, Issue, IssueListResponse, UpdateIssueRequest, Statistics } from './types';
+import { CreateIssueRequest, Issue, IssueListResponse, UpdateIssueRequest, Statistics, IssueFilters } from './types';
 
 export class ApiClient {
   private client: AxiosInstance;
@@ -28,11 +28,7 @@ export class ApiClient {
     return response.data;
   }
 
-  async getIssues(params?: {
-    limit?: number;
-    category?: string;
-    since?: string;
-  }): Promise<IssueListResponse> {
+  async getIssues(params?: IssueFilters & { limit?: number; offset?: number }): Promise<IssueListResponse> {
     const response = await this.client.get('/api/issues', { params });
     return response.data;
   }

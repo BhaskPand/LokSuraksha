@@ -1,8 +1,8 @@
 import { db } from '../db/database';
-import { Issue, CreateIssueRequest, UpdateIssueRequest, IssueStatus } from '@citizen-safety/shared';
+import { Issue, CreateIssueRequest, UpdateIssueRequest, IssueStatus, IssuePriority, IssueFilters } from '@citizen-safety/shared';
 
 export class IssueModel {
-  static findAll(params?: { limit?: number; category?: string; since?: string; userId?: number }): Issue[] {
+  static findAll(params?: IssueFilters & { limit?: number; offset?: number }): Issue[] {
     let query = 'SELECT * FROM issues WHERE 1=1';
     const conditions: string[] = [];
     const values: any[] = [];
@@ -17,20 +17,54 @@ export class IssueModel {
       values.push(params.category);
     }
 
-    if (params?.since) {
+    if (params?.status) {
+      conditions.push('status = ?');
+      values.push(params.status);
+    }
+
+    if (params?.priority) {
+      conditions.push('priority = ?');
+      values.push(params.priority);
+    }
+
+    if (params?.startDate) {
       conditions.push('created_at >= ?');
-      values.push(params.since);
+      values.push(params.startDate);
+    }
+
+    if (params?.endDate) {
+      conditions.push('created_at <= ?');
+      values.push(params.endDate);
+    }
+
+    if (params?.search) {
+      conditions.push('(title LIKE ? OR description LIKE ?)');
+      const searchTerm = `%${params.search}%`;
+      values.push(searchTerm, searchTerm);
     }
 
     if (conditions.length > 0) {
       query += ' AND ' + conditions.join(' AND ');
     }
 
-    query += ' ORDER BY created_at DESC';
+    // Order by priority first (critical > high > medium > low), then by date
+    query += ` ORDER BY 
+      CASE priority 
+        WHEN 'critical' THEN 1 
+        WHEN 'high' THEN 2 
+        WHEN 'medium' THEN 3 
+        WHEN 'low' THEN 4 
+      END,
+      created_at DESC`;
 
     if (params?.limit) {
       query += ' LIMIT ?';
       values.push(params.limit);
+      
+      if (params?.offset) {
+        query += ' OFFSET ?';
+        values.push(params.offset);
+      }
     }
 
     const rows = db.prepare(query).all(...values) as any[];
@@ -44,9 +78,10 @@ export class IssueModel {
 
   static create(data: CreateIssueRequest, userId?: number): Issue {
     const imagesJson = JSON.stringify(data.images || []);
+    const priority = data.priority || 'medium';
     const stmt = db.prepare(`
-      INSERT INTO issues (user_id, title, description, category, location_lat, location_lng, images, contact_name, contact_phone, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'open')
+      INSERT INTO issues (user_id, title, description, category, location_lat, location_lng, images, contact_name, contact_phone, status, priority)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', ?)
     `);
 
     const result = stmt.run(
@@ -58,7 +93,8 @@ export class IssueModel {
       data.location_lng,
       imagesJson,
       data.contact_name || null,
-      data.contact_phone || null
+      data.contact_phone || null,
+      priority
     );
 
     const issue = this.findById(result.lastInsertRowid as number);
@@ -112,6 +148,11 @@ export class IssueModel {
     if (data.contact_phone !== undefined) {
       updates.push('contact_phone = ?');
       values.push(data.contact_phone || null);
+    }
+
+    if (data.priority !== undefined) {
+      updates.push('priority = ?');
+      values.push(data.priority);
     }
 
     if (updates.length === 0) {
@@ -297,6 +338,7 @@ export class IssueModel {
       contact_name: row.contact_name || undefined,
       contact_phone: row.contact_phone || undefined,
       status: row.status as IssueStatus,
+      priority: (row.priority || 'medium') as IssuePriority,
       created_at: row.created_at,
       notes: row.notes || undefined,
     };

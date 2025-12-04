@@ -1,21 +1,56 @@
 import { Request, Response } from 'express';
 import { IssueModel } from '../models/issue';
-import { CreateIssueRequest, UpdateIssueRequest } from '@citizen-safety/shared';
+import { CreateIssueRequest, UpdateIssueRequest, IssueFilters } from '@citizen-safety/shared';
+import { sendIssueStatusNotification } from '../utils/notificationService';
 
 export async function getIssues(req: Request, res: Response) {
   try {
-    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
-    const category = req.query.category as string | undefined;
-    const since = req.query.since as string | undefined;
-    const userId = req.query.userId ? parseInt(req.query.userId as string, 10) : undefined;
+    const filters: IssueFilters & { limit?: number; offset?: number } = {};
+    
+    if (req.query.limit) {
+      filters.limit = parseInt(req.query.limit as string, 10);
+    }
+    
+    if (req.query.offset) {
+      filters.offset = parseInt(req.query.offset as string, 10);
+    }
+    
+    if (req.query.category) {
+      filters.category = req.query.category as string;
+    }
+    
+    if (req.query.status) {
+      filters.status = req.query.status as any;
+    }
+    
+    if (req.query.priority) {
+      filters.priority = req.query.priority as any;
+    }
+    
+    if (req.query.search) {
+      filters.search = req.query.search as string;
+    }
+    
+    if (req.query.startDate) {
+      filters.startDate = req.query.startDate as string;
+    }
+    
+    if (req.query.endDate) {
+      filters.endDate = req.query.endDate as string;
+    }
+    
+    if (req.query.userId) {
+      filters.userId = parseInt(req.query.userId as string, 10);
+    }
 
-    const issues = IssueModel.findAll({ limit, category, since, userId });
+    const issues = IssueModel.findAll(filters);
     const total = IssueModel.count();
 
     res.json({
       issues,
       total,
-      limit,
+      limit: filters.limit,
+      offset: filters.offset,
     });
   } catch (error) {
     console.error('Error fetching issues:', error);
@@ -122,6 +157,7 @@ export async function updateIssue(req: Request, res: Response) {
       const adminData: UpdateIssueRequest = {
         status: data.status,
         notes: data.notes,
+        priority: data.priority,
       };
       // Remove undefined fields
       Object.keys(adminData).forEach(key => {
@@ -129,7 +165,27 @@ export async function updateIssue(req: Request, res: Response) {
           delete adminData[key as keyof UpdateIssueRequest];
         }
       });
+      
+      // Check if status changed
+      const statusChanged = data.status && data.status !== existingIssue.status;
+      
       const issue = IssueModel.update(id, adminData);
+      
+      // Send notification if status changed and user has push token
+      if (statusChanged && issue && existingIssue.user_id) {
+        try {
+          const { PushTokenModel } = await import('../models/pushToken');
+          const tokens = PushTokenModel.findByUserId(existingIssue.user_id);
+          
+          for (const token of tokens) {
+            await sendIssueStatusNotification(token.token, issue.title, data.status!);
+          }
+        } catch (error) {
+          console.error('Error sending notification:', error);
+          // Don't fail the request if notification fails
+        }
+      }
+      
       return res.json(issue);
     } else if (!isUserOwnIssue && hasUserFields) {
       return res.status(403).json({ error: 'Forbidden: You can only edit your own issues' });

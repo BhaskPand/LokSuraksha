@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { registerForPushNotifications } from '../utils/notifications';
 
 const SETTINGS_KEYS = {
   SOS_AUTO_SEND: '@loksuraksha:sos_auto_send',
@@ -22,6 +24,7 @@ const SETTINGS_KEYS = {
 
 export default function SettingsScreen() {
   const { deleteAccount } = useAuth();
+  const { colors, isDark, setThemeMode, theme } = useTheme();
   const [sosAutoSend, setSosAutoSend] = useState(true);
   const [shareLocation, setShareLocation] = useState(true);
   const [notifications, setNotifications] = useState(true);
@@ -40,6 +43,14 @@ export default function SettingsScreen() {
   const handleNotificationsToggle = async (value: boolean) => {
     setNotifications(value);
     await AsyncStorage.setItem(SETTINGS_KEYS.NOTIFICATIONS, JSON.stringify(value));
+    if (value) {
+      // Register for push notifications when enabled
+      await registerForPushNotifications();
+    }
+  };
+
+  const handleThemeModeChange = (mode: 'light' | 'dark' | 'auto') => {
+    setThemeMode(mode);
   };
 
   const handleClearData = () => {
@@ -83,18 +94,100 @@ export default function SettingsScreen() {
     );
   };
 
+  useEffect(() => {
+    // Register for notifications on mount if enabled
+    if (notifications) {
+      registerForPushNotifications();
+    }
+  }, []);
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Emergency Settings</Text>
+        <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Appearance</Text>
           
           <View style={styles.settingItem}>
             <View style={styles.settingInfo}>
-              <MaterialCommunityIcons name="alert-circle" size={24} color="#475569" />
+              <MaterialCommunityIcons name="theme-light-dark" size={24} color={colors.primary} />
               <View style={styles.settingText}>
-                <Text style={styles.settingLabel}>Auto-send SOS</Text>
-                <Text style={styles.settingDescription}>
+                <Text style={[styles.settingLabel, { color: colors.text }]}>Theme</Text>
+                <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
+                  {theme.mode === 'auto' ? 'Auto (System)' : theme.mode === 'dark' ? 'Dark' : 'Light'}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.themeButtons}>
+              <TouchableOpacity
+                style={[
+                  styles.themeButton,
+                  {
+                    backgroundColor: theme.mode === 'light' ? colors.primary : colors.card,
+                    borderColor: colors.border,
+                  },
+                ]}
+                onPress={() => handleThemeModeChange('light')}
+              >
+                <Text
+                  style={[
+                    styles.themeButtonText,
+                    { color: theme.mode === 'light' ? '#FFFFFF' : colors.text },
+                  ]}
+                >
+                  Light
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.themeButton,
+                  {
+                    backgroundColor: theme.mode === 'dark' ? colors.primary : colors.card,
+                    borderColor: colors.border,
+                  },
+                ]}
+                onPress={() => handleThemeModeChange('dark')}
+              >
+                <Text
+                  style={[
+                    styles.themeButtonText,
+                    { color: theme.mode === 'dark' ? '#FFFFFF' : colors.text },
+                  ]}
+                >
+                  Dark
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.themeButton,
+                  {
+                    backgroundColor: theme.mode === 'auto' ? colors.primary : colors.card,
+                    borderColor: colors.border,
+                  },
+                ]}
+                onPress={() => handleThemeModeChange('auto')}
+              >
+                <Text
+                  style={[
+                    styles.themeButtonText,
+                    { color: theme.mode === 'auto' ? '#FFFFFF' : colors.text },
+                  ]}
+                >
+                  Auto
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Emergency Settings</Text>
+          
+          <View style={styles.settingItem}>
+            <View style={styles.settingInfo}>
+              <MaterialCommunityIcons name="alert-circle" size={24} color={colors.primary} />
+              <View style={styles.settingText}>
+                <Text style={[styles.settingLabel, { color: colors.text }]}>Auto-send SOS</Text>
+                <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
                   Automatically send SOS alerts to emergency contacts
                 </Text>
               </View>
@@ -102,17 +195,17 @@ export default function SettingsScreen() {
             <Switch
               value={sosAutoSend}
               onValueChange={handleSosToggle}
-              trackColor={{ false: '#cbd5e1', true: '#0d9488' }}
+              trackColor={{ false: colors.border, true: colors.primary }}
               thumbColor="#ffffff"
             />
           </View>
 
           <View style={styles.settingItem}>
             <View style={styles.settingInfo}>
-              <MaterialCommunityIcons name="map-marker" size={24} color="#475569" />
+              <MaterialCommunityIcons name="map-marker" size={24} color={colors.primary} />
               <View style={styles.settingText}>
-                <Text style={styles.settingLabel}>Share Live Location</Text>
-                <Text style={styles.settingDescription}>
+                <Text style={[styles.settingLabel, { color: colors.text }]}>Share Live Location</Text>
+                <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
                   Allow emergency contacts to see your live location
                 </Text>
               </View>
@@ -120,21 +213,21 @@ export default function SettingsScreen() {
             <Switch
               value={shareLocation}
               onValueChange={handleShareLocationToggle}
-              trackColor={{ false: '#cbd5e1', true: '#0d9488' }}
+              trackColor={{ false: colors.border, true: colors.primary }}
               thumbColor="#ffffff"
             />
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Notifications</Text>
+        <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Notifications</Text>
           
           <View style={styles.settingItem}>
             <View style={styles.settingInfo}>
-              <MaterialCommunityIcons name="bell" size={24} color="#475569" />
+              <MaterialCommunityIcons name="bell" size={24} color={colors.primary} />
               <View style={styles.settingText}>
-                <Text style={styles.settingLabel}>Push Notifications</Text>
-                <Text style={styles.settingDescription}>
+                <Text style={[styles.settingLabel, { color: colors.text }]}>Push Notifications</Text>
+                <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
                   Receive notifications about your reports and updates
                 </Text>
               </View>
@@ -142,64 +235,64 @@ export default function SettingsScreen() {
             <Switch
               value={notifications}
               onValueChange={handleNotificationsToggle}
-              trackColor={{ false: '#cbd5e1', true: '#0d9488' }}
+              trackColor={{ false: colors.border, true: colors.primary }}
               thumbColor="#ffffff"
             />
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Location</Text>
+        <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Location</Text>
           
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingInfo}>
-              <MaterialCommunityIcons name="crosshairs-gps" size={24} color="#475569" />
+              <MaterialCommunityIcons name="crosshairs-gps" size={24} color={colors.primary} />
               <View style={styles.settingText}>
-                <Text style={styles.settingLabel}>Location Accuracy</Text>
-                <Text style={styles.settingDescription}>High (GPS)</Text>
+                <Text style={[styles.settingLabel, { color: colors.text }]}>Location Accuracy</Text>
+                <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>High (GPS)</Text>
               </View>
             </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#cbd5e1" />
+            <MaterialCommunityIcons name="chevron-right" size={24} color={colors.border} />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Data</Text>
+        <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Data</Text>
           
           <TouchableOpacity style={styles.settingItem} onPress={handleClearData}>
             <View style={styles.settingInfo}>
-              <MaterialCommunityIcons name="delete" size={24} color="#dc2626" />
+              <MaterialCommunityIcons name="delete" size={24} color={colors.error} />
               <View style={styles.settingText}>
-                <Text style={[styles.settingLabel, { color: '#dc2626' }]}>Clear All Data</Text>
-                <Text style={styles.settingDescription}>
+                <Text style={[styles.settingLabel, { color: colors.error }]}>Clear All Data</Text>
+                <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
                   Delete all app data and settings
                 </Text>
               </View>
             </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#cbd5e1" />
+            <MaterialCommunityIcons name="chevron-right" size={24} color={colors.border} />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
+        <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Account</Text>
           
           <TouchableOpacity style={styles.settingItem} onPress={handleDeleteAccount}>
             <View style={styles.settingInfo}>
-              <MaterialCommunityIcons name="account-remove" size={24} color="#dc2626" />
+              <MaterialCommunityIcons name="account-remove" size={24} color={colors.error} />
               <View style={styles.settingText}>
-                <Text style={[styles.settingLabel, { color: '#dc2626' }]}>Delete Account</Text>
-                <Text style={styles.settingDescription}>
+                <Text style={[styles.settingLabel, { color: colors.error }]}>Delete Account</Text>
+                <Text style={[styles.settingDescription, { color: colors.textSecondary }]}>
                   Permanently delete your account and all data
                 </Text>
               </View>
             </View>
-            <MaterialCommunityIcons name="chevron-right" size={24} color="#cbd5e1" />
+            <MaterialCommunityIcons name="chevron-right" size={24} color={colors.border} />
           </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>LokSuraksha v1.0.0</Text>
-          <Text style={styles.footerText}>© 2024 All rights reserved</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>LokSuraksha v1.0.0</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>© 2024 All rights reserved</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -209,23 +302,25 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f1f5f9',
   },
   content: {
     padding: 20,
+    paddingBottom: 120, // Extra padding for floating tab bar
   },
   section: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
+    borderRadius: 28,
     marginBottom: 16,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#64748b',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     padding: 16,
@@ -235,9 +330,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    padding: 20,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#F3F4F6',
   },
   settingInfo: {
     flexDirection: 'row',
@@ -245,18 +340,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingText: {
-    marginLeft: 12,
+    marginLeft: 16,
     flex: 1,
   },
   settingLabel: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#1e293b',
+    fontWeight: '600',
     marginBottom: 4,
   },
   settingDescription: {
     fontSize: 13,
-    color: '#64748b',
+  },
+  themeButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  themeButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  themeButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   footer: {
     alignItems: 'center',
@@ -264,7 +371,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 12,
-    color: '#64748b',
     marginBottom: 4,
   },
 });

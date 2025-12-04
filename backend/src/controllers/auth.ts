@@ -328,6 +328,29 @@ export async function deleteAccount(req: Request, res: Response) {
   }
 }
 
+export async function registerPushToken(req: Request, res: Response) {
+  try {
+    const userId = (req as any).userId;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const { token, platform } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: 'Push token is required' });
+    }
+
+    const { PushTokenModel } = await import('../models/pushToken');
+    PushTokenModel.create(userId, token, platform);
+
+    res.json({ message: 'Push token registered successfully' });
+  } catch (error) {
+    console.error('Error registering push token:', error);
+    res.status(500).json({ error: 'Failed to register push token' });
+  }
+}
+
 
 
 

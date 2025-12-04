@@ -67,11 +67,26 @@ export function initDatabase() {
       contact_name TEXT,
       contact_phone TEXT,
       status TEXT NOT NULL DEFAULT 'open',
+      priority TEXT NOT NULL DEFAULT 'medium',
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       notes TEXT,
       FOREIGN KEY (user_id) REFERENCES users(id)
     )
   `);
+
+  // Migration: Add priority column if it doesn't exist
+  try {
+    const tableInfo = db.prepare("PRAGMA table_info(issues)").all() as any[];
+    const hasPriority = tableInfo.some((col: any) => col.name === 'priority');
+    
+    if (!hasPriority) {
+      console.log('Adding priority column to issues table...');
+      db.exec('ALTER TABLE issues ADD COLUMN priority TEXT NOT NULL DEFAULT "medium"');
+      db.exec('CREATE INDEX IF NOT EXISTS idx_issues_priority ON issues(priority)');
+    }
+  } catch (error) {
+    console.warn('Migration check failed:', error);
+  }
 
   // Migration: Add user_id column if it doesn't exist
   try {
@@ -87,11 +102,26 @@ export function initDatabase() {
     console.warn('Migration check failed:', error);
   }
 
+  // Create push_tokens table for notifications
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS push_tokens (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      token TEXT NOT NULL,
+      platform TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `);
+
   // Create indexes
   db.exec('CREATE INDEX IF NOT EXISTS idx_issues_category ON issues(category)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_issues_status ON issues(status)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_issues_created_at ON issues(created_at)');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_issues_priority ON issues(priority)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_push_tokens_user_id ON push_tokens(user_id)');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_push_tokens_token ON push_tokens(token)');
 
   console.log('Database initialized successfully!');
 }

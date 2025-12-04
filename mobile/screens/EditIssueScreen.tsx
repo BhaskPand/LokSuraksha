@@ -365,7 +365,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 120, // Extra padding for floating tab bar
   },
   submitButton: {
     backgroundColor: '#0ea5a4',

@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 20,
-    paddingBottom: 32,
+    paddingBottom: 120, // Extra padding for floating tab bar
   },
   header: {
     alignItems: 'center',

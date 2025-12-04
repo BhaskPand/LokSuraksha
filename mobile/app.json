@@ -20,7 +20,7 @@
         "backgroundColor": "#f8fafc"
       },
       "package": "com.citizensafety.app",
-      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "CAMERA", "READ_MEDIA_IMAGES"]
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "CAMERA", "READ_MEDIA_IMAGES", "RECEIVE_BOOT_COMPLETED", "VIBRATE"]
     },
     "web": {
     },
@@ -36,6 +36,13 @@
         {
           "locationAlwaysAndWhenInUsePermission": "The app needs your location to tag reports with GPS coordinates.",
           "locationWhenInUsePermission": "The app needs your location to tag reports with GPS coordinates."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#8B5CF6"
         }
       ]
     ],
